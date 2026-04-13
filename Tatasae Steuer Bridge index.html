@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tatasae Steuer Bridge - Ultimate Live</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
+                            600: '#4f46e5', 700: '#4338ca', 900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-ring { animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .tab-active { background-color: #1e293b; color: white; }
+        .tab-inactive { color: #94a3b8; }
+        .tab-inactive:hover { background-color: rgba(30, 41, 59, 0.5); color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen overflow-hidden relative">
+
+    <div class="absolute top-6 right-8 z-[100] flex bg-white/80 backdrop-blur-md p-1 rounded-lg border border-slate-200 shadow-sm">
+        <button onclick="switchLanguage('de')" id="btn-lang-de" class="px-3 py-1 text-sm font-medium rounded-md bg-white shadow-sm text-brand-600 transition-all">DE</button>
+        <button onclick="switchLanguage('en')" id="btn-lang-en" class="px-3 py-1 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all">EN</button>
+    </div>
+
+    <div id="toast-notification" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl z-[100] hidden transition-opacity duration-300 opacity-0 flex items-center gap-3">
+        <i class="fa-solid fa-circle-info text-brand-400"></i>
+        <span id="toast-message" class="text-sm font-medium">Message</span>
+    </div>
+
+    <div id="login-view" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-50 transition-opacity duration-500">
+        <div class="w-full max-w-md bg-white p-10 rounded-2xl shadow-xl border border-slate-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-500 to-indigo-400"></div>
+            
+            <div class="text-center mb-8 mt-2">
+                <div class="w-14 h-14 rounded-xl bg-brand-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-bridge text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-800 tracking-wide">Tatasae<span class="text-brand-500 font-light">Bridge</span></h1>
+                <p class="text-slate-500 text-sm mt-1" data-i18n="login_subtitle">Melden Sie sich an, um fortzufahren</p>
+            </div>
+
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="login_email">E-Mail Adresse</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-regular fa-envelope text-slate-400"></i></div>
+                        <input type="email" value="demo@tatasae.com" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="login_pwd">Passwort</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-lock text-slate-400"></i></div>
+                        <input type="password" value="password123" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="login_role">Rolle</label>
+                    <select id="user-role" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 transition-all appearance-none cursor-pointer">
+                        <option value="Admin" data-i18n="role_admin">Administrator</option>
+                        <option value="User" data-i18n="role_user">Standardbenutzer</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="btn-submit-login" class="w-full mt-2 py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span id="login-text" data-i18n="btn_login">Anmelden</span>
+                    <i id="login-icon" class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-view" class="hidden h-screen w-full opacity-0 transition-opacity duration-500">
+        
+        <aside class="w-72 bg-slate-900 text-slate-300 flex flex-col hidden md:flex h-full shadow-2xl relative z-20">
+            <div class="h-20 flex items-center px-6 border-b border-slate-800 bg-slate-950">
+                <div class="w-8 h-8 rounded bg-brand-600 flex items-center justify-center mr-3 shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-bridge text-white text-sm"></i>
+                </div>
+                <h1 class="text-white font-semibold tracking-wide text-lg">Tatasae<span class="text-brand-500 font-light">Bridge</span></h1>
+            </div>
+
+            <div class="px-4 py-6 flex-1">
+                <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2" data-i18n="nav_menu">Menü</p>
+                <ul class="space-y-1">
+                    <li>
+                        <button onclick="switchMainView('workflow')" id="nav-workflow" class="w-full flex items-center px-2 py-2.5 rounded-lg transition-colors tab-active">
+                            <i class="fa-solid fa-file-invoice w-6 text-brand-400"></i><span class="font-medium ml-2" data-i18n="nav_invoices">Rechnungen</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="switchMainView('archive')" id="nav-archive" class="w-full flex items-center px-2 py-2.5 rounded-lg transition-colors tab-inactive">
+                            <i class="fa-solid fa-box-archive w-6 text-slate-400"></i><span class="font-medium ml-2" data-i18n="nav_archive">GoBD Archiv</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="mt-12">
+                    <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2" data-i18n="status_title">System Status</p>
+                    <ul class="space-y-3 px-2 text-sm">
+                        <li class="flex items-center"><i class="fa-solid fa-shield-halved w-6 text-emerald-400 mr-2"></i><span data-i18n="status_gobd">GoBD Konform</span></li>
+                        <li class="flex items-center"><i class="fa-solid fa-lock w-6 text-emerald-400 mr-2"></i><span data-i18n="status_enc">End-to-End Verschlüsselt</span></li>
+                        <li class="flex items-center transition-colors duration-500" id="elster-status-container">
+                            <i class="fa-solid fa-link-slash w-6 text-slate-500 mr-2" id="elster-icon"></i>
+                            <span id="elster-text" data-i18n="status_elster">ELSTER API: Getrennt</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-900">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white"><i class="fa-solid fa-user"></i></div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-white" id="sidebar-role">Benutzer: Admin</span>
+                            <span class="text-xs text-slate-500" data-i18n="user_loc">Ludwigshafen, DE</span>
+                        </div>
+                    </div>
+                    <button onclick="handleLogout()" class="text-slate-500 hover:text-red-400 transition-colors p-2" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-slate-50">
+            <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm relative z-10">
+                <h2 class="text-xl font-semibold text-slate-800" id="header-title" data-i18n="header_workflow">Rechnungsprozess</h2>
+                <div class="w-20"></div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 flex justify-center items-start pt-12 relative z-0">
+                
+                <div id="view-workflow" class="max-w-3xl w-full">
+                    
+                    <div id="step-1" class="bg-white p-10 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2" data-i18n="step1_title">Rechnung Hochladen</h3>
+                            <p class="text-slate-500" data-i18n="step1_desc">Wählen Sie ein Dokument (PDF, Bild, Excel) zum Hochladen aus.</p>
+                        </div>
+
+                        <input type="file" id="local-file-input" accept=".pdf,.jpg,.jpeg,.png,.xls,.xlsx" class="hidden" onchange="handleFileSelection(event)">
+
+                        <div id="drop-zone" class="border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 transition-all duration-300 rounded-2xl flex flex-col items-center justify-center p-10 relative group">
+                            <div id="drop-content" class="w-full flex flex-col items-center">
+                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 text-brand-500"><i class="fa-solid fa-cloud-arrow-up text-2xl"></i></div>
+                                <div class="flex flex-wrap justify-center gap-3 mb-4">
+                                    <button type="button" onclick="document.getElementById('local-file-input').click()" class="px-4 py-2.5 bg-white border border-slate-200 hover:border-brand-400 hover:text-brand-600 rounded-xl shadow-sm text-sm font-medium text-slate-600 flex items-center gap-2 transition-all">
+                                        <i class="fa-solid fa-desktop"></i> <span data-i18n="up_local">Computer</span>
+                                    </button>
+                                    <button type="button" onclick="openCameraModal()" class="px-4 py-2.5 bg-white border border-slate-200 hover:border-brand-400 hover:text-brand-600 rounded-xl shadow-sm text-sm font-medium text-slate-600 flex items-center gap-2 transition-all">
+                                        <i class="fa-solid fa-camera"></i> <span data-i18n="up_cam">Kamera</span>
+                                    </button>
+                                    <button type="button" onclick="simulateDriveUpload()" class="px-4 py-2.5 bg-white border border-slate-200 hover:border-brand-400 hover:text-brand-600 rounded-xl shadow-sm text-sm font-medium text-slate-600 flex items-center gap-2 transition-all">
+                                        <i class="fa-brands fa-google-drive text-[#1FA463]"></i> <span data-i18n="up_drive">Google Drive</span>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-slate-400">Unterstützt PDF, JPG, PNG, Excel (Max 10MB)</p>
+                            </div>
+                            
+                            <div id="file-preview-area" class="hidden w-full flex flex-col items-center">
+                                <div id="preview-visual" class="mb-4 w-32 h-32 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm"></div>
+                                <p id="preview-filename" class="font-semibold text-slate-800 mb-1 text-center truncate w-full px-4"></p>
+                                <p id="preview-filesize" class="text-sm text-slate-500 mb-6"></p>
+                                <div class="flex gap-3">
+                                    <button type="button" onclick="clearFile()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors" data-i18n="btn_remove_file">Entfernen</button>
+                                    <button type="button" onclick="processFile()" class="px-6 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm flex items-center gap-2 transition-colors">
+                                        <i class="fa-solid fa-microchip"></i><span data-i18n="btn_process">KI Analyse starten</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="processing-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
+                            <div class="pulse-ring w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mb-4"><i class="fa-solid fa-microchip text-brand-600 text-2xl"></i></div>
+                            <h4 class="text-lg font-semibold text-slate-800 mb-1" data-i18n="step1_processing">KI extrahiert Daten...</h4>
+                            <p class="text-sm text-slate-500" data-i18n="step1_processing_sub">OCR-Texterkennung läuft</p>
+                        </div>
+                    </div>
+
+                    <div id="step-2" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-8 border-b border-slate-100">
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2" data-i18n="step2_title">Daten Prüfen</h3>
+                            <p class="text-slate-500" data-i18n="step2_desc">Bitte überprüfen Sie die von der KI extrahierten Daten auf Richtigkeit.</p>
+                        </div>
+
+                        <div class="p-8 space-y-6">
+                            <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-xl">
+                                <label class="flex items-center gap-2 text-sm font-bold text-indigo-900 mb-3">
+                                    <i class="fa-solid fa-folder-tree text-brand-500"></i><span data-i18n="step2_folder_label">Speicherort (Benutzerdefinierter Ordner)</span>
+                                </label>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-slate-500 font-mono text-sm hidden sm:inline">/GoBD_Archiv/</span>
+                                    <input type="text" id="custom-folder-name" placeholder="z.B. Miete_April_2026" class="flex-1 px-4 py-2.5 bg-white border border-indigo-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 font-mono text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="step2_vendor">Lieferant</label><input type="text" id="input-vendor" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800"></div>
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="step2_date">Rechnungsdatum</label><input type="date" id="input-date" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800"></div>
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="step2_net">Nettobetrag (€)</label><input type="number" step="0.01" id="input-net" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 font-mono"></div>
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="step2_vat">Umsatzsteuer 19% (€)</label><input type="number" step="0.01" id="input-vat" class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 font-mono"></div>
+                            </div>
+                        </div>
+
+                        <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-between items-center rounded-b-2xl">
+                            <button type="button" onclick="goToStep(1)" class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i><span data-i18n="btn_back">Zurück</span></button>
+                            <button type="button" onclick="goToStep(3)" class="px-6 py-2.5 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm flex items-center gap-2"><span data-i18n="btn_confirm">Speichern & Weiter</span><i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="step-3" class="hidden bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center relative">
+                        <button type="button" id="btn-back-step3" onclick="goToStep(2)" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700"><i class="fa-solid fa-arrow-left text-xl"></i></button>
+                        
+                        <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 mt-4"><i class="fa-solid fa-folder-check text-4xl"></i></div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-3" data-i18n="step3_title">Im Ordner Archiviert</h3>
+                        <p class="text-slate-500 max-w-md mx-auto mb-10" id="archive-success-desc">Dokument wurde sicher im Ordner abgelegt.</p>
+                        
+                        <button type="button" id="btn-sync" onclick="openElsterModal()" class="w-full sm:w-auto px-8 py-4 text-base font-medium text-white bg-slate-800 hover:bg-slate-900 rounded-xl shadow-lg flex items-center justify-center gap-3 mx-auto transition-all">
+                            <i id="sync-icon" class="fa-solid fa-cloud-arrow-up"></i><span id="sync-text" data-i18n="btn_sync">An ELSTER übermitteln</span>
+                        </button>
+
+                        <div class="mt-4 flex flex-col sm:flex-row justify-center gap-4 hidden fade-in" id="post-sync-actions">
+                            <div class="w-full flex items-center justify-center gap-2 mb-6 text-emerald-500 font-semibold bg-emerald-50 py-2 px-4 rounded-lg">
+                                <i class="fa-solid fa-check-double"></i> <span data-i18n="btn_synced">Erfolgreich Verbunden</span>
+                            </div>
+                            <div class="w-full flex justify-center gap-4">
+                                <button type="button" onclick="switchMainView('archive')" class="flex-1 max-w-[200px] px-5 py-3 text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-xl border border-brand-200 flex items-center justify-center transition-colors shadow-sm">
+                                    <i class="fa-solid fa-folder-open mr-2"></i><span data-i18n="btn_go_archive">Zum Archiv</span>
+                                </button>
+                                <button type="button" onclick="resetFlow()" class="flex-1 max-w-[200px] px-5 py-3 text-sm font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 rounded-xl border border-slate-300 flex items-center justify-center transition-colors shadow-sm">
+                                    <i class="fa-solid fa-plus mr-2"></i><span data-i18n="btn_restart">Neue Rechnung</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-archive" class="max-w-4xl w-full hidden fade-in">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2" data-i18n="archive_title">GoBD Datei-Manager</h3>
+                        <p class="text-slate-500 mb-6" data-i18n="archive_desc">Ihre archivierten Dokumente, sortiert nach benutzerdefinierten Ordnern.</p>
+                        <div id="archive-folders-container" class="space-y-6"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="camera-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[90] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-black w-full max-w-2xl aspect-video relative rounded-2xl overflow-hidden shadow-2xl scale-95 transition-transform duration-300" id="camera-modal-content">
+            <video id="camera-video" autoplay playsinline class="w-full h-full object-cover"></video>
+            
+            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between">
+                <button type="button" onclick="closeCameraModal()" class="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                
+                <button type="button" onclick="takeSnapshot()" class="w-16 h-16 rounded-full border-4 border-white bg-white/50 hover:bg-white flex items-center justify-center transition-all group">
+                    <div class="w-12 h-12 bg-white rounded-full group-hover:scale-90 transition-transform"></div>
+                </button>
+                
+                <div class="w-12 h-12"></div> </div>
+        </div>
+    </div>
+
+    <div id="elster-auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden scale-95 transition-transform duration-300" id="elster-modal-content">
+            <div class="bg-slate-900 p-6 flex items-center gap-4 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-brand-500/20 rounded-full blur-2xl"></div>
+                <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 backdrop-blur-md relative z-10"><i class="fa-solid fa-file-signature text-brand-400 text-xl"></i></div>
+                <div class="relative z-10">
+                    <h3 class="text-xl font-bold text-white" data-i18n="auth_title">ELSTER Autorisierung</h3>
+                    <p class="text-slate-400 text-sm mt-0.5" data-i18n="auth_subtitle">Zertifikat & PIN erforderlich</p>
+                </div>
+            </div>
+            <form id="elster-auth-form" class="p-6 space-y-5">
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-lg flex items-start gap-3">
+                    <i class="fa-solid fa-lock text-amber-500 mt-0.5"></i>
+                    <p class="text-xs text-amber-800 font-medium leading-relaxed" data-i18n="auth_warning">Für die Übermittlung an das Finanzamt ist Ihr persönliches ELSTER-Zertifikat (.pfx) zur digitalen Signatur erforderlich.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="auth_cert">Zertifikatsdatei</label>
+                    <input type="file" required accept=".pfx,.p12" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer border border-slate-200 rounded-lg bg-slate-50 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="auth_pin">Zertifikats-PIN</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-key text-slate-400"></i></div>
+                        <input type="password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 tracking-wider font-mono">
+                    </div>
+                </div>
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeElsterModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors" data-i18n="btn_cancel">Abbrechen</button>
+                    <button type="submit" id="btn-modal-auth" class="flex-[2] px-4 py-2.5 text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i id="auth-icon" class="fa-solid fa-shield-check"></i><span id="auth-text" data-i18n="btn_auth_sync">Signieren & Senden</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="preview-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[80] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-white w-full max-w-4xl h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden scale-95 transition-transform duration-300" id="preview-modal-content">
+            <div class="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div id="preview-modal-icon" class="w-8 h-8 rounded bg-brand-100 text-brand-600 flex items-center justify-center"></div>
+                    <h3 id="preview-modal-title" class="font-bold text-slate-800 truncate max-w-sm">Filename.pdf</h3>
+                </div>
+                <button type="button" onclick="closePreviewModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-500 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex-1 bg-slate-200 relative overflow-hidden flex items-center justify-center" id="preview-modal-body">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Variables ---
+        let currentLang = 'de';
+        let elsterConnected = false;
+        let currentUserRole = 'Admin';
+        let currentFileObj = null; 
+        let archivedFiles = []; 
+        let videoStream = null; // Stream for Live Camera
+
+        // --- i18n Dictionary ---
+        const i18n = {
+            de: {
+                login_subtitle: "Melden Sie sich an, um fortzufahren", login_email: "E-Mail Adresse",
+                login_pwd: "Passwort", login_role: "Rolle", role_admin: "Administrator", role_user: "Standardbenutzer",
+                btn_login: "Anmelden", btn_logging_in: "Anmeldung...", user_label: "Benutzer: ",
+                nav_menu: "Menü", nav_invoices: "Neu Hochladen", nav_archive: "GoBD Archiv",
+                status_title: "System Status", status_gobd: "GoBD Konform", status_enc: "Verschlüsselt",
+                status_elster: "ELSTER: Getrennt", status_elster_connected: "ELSTER: Verbunden", user_loc: "Ludwigshafen, DE",
+                header_workflow: "Rechnungsprozess", header_archive: "Datei-Archiv",
+                step1_title: "Dokument Hochladen", step1_desc: "Laden Sie Rechnungen (PDF, Bild, Excel) hoch.",
+                up_local: "Computer", up_cam: "Kamera", up_drive: "Drive (Simuliert)",
+                step1_processing: "KI Analyse...", step1_processing_sub: "Extrahiere Daten", 
+                btn_remove_file: "Entfernen", btn_process: "KI Analyse starten",
+                step2_title: "Daten Prüfen", step2_desc: "KI-Daten prüfen und Speicherordner benennen.",
+                step2_folder_label: "Ordnername (Custom Folder)", step2_vendor: "Lieferant", 
+                step2_date: "Datum", step2_net: "Netto (€)", step2_vat: "MwSt 19% (€)",
+                btn_back: "Zurück", btn_confirm: "Speichern & Weiter", btn_cancel: "Abbrechen",
+                step3_title: "Im Ordner Archiviert", step3_desc: "Erfolgreich im Ordner gespeichert.",
+                btn_sync: "An ELSTER übermitteln", btn_syncing: "Übermittlung...", btn_synced: "Erfolgreich Verbunden",
+                btn_go_archive: "Zum Archiv", btn_restart: "Neue Rechnung hochladen",
+                archive_title: "GoBD Datei-Manager", archive_desc: "Strukturierte Ansicht Ihrer Ordner.", archive_empty: "Archiv ist leer.",
+                auth_title: "ELSTER Autorisierung", auth_subtitle: "Zertifikat & PIN erforderlich",
+                auth_warning: "Für die Übermittlung an das Finanzamt ist Ihr persönliches ELSTER-Zertifikat (.pfx) zur digitalen Signatur erforderlich.",
+                auth_cert: "Zertifikatsdatei", auth_pin: "Zertifikats-PIN", btn_auth_sync: "Signieren & Senden",
+                msg_drive_sim: "Verbinde mit Google Drive API... (Simulation abgeschlossen)",
+                confirm_delete: "Sind Sie sicher, dass Sie diese Datei endgültig löschen möchten?",
+                err_preview: "Vorschau für diesen Dateityp im Browser nicht direkt möglich. Bitte herunterladen."
+            },
+            en: {
+                login_subtitle: "Sign in to continue", login_email: "Email Address",
+                login_pwd: "Password", login_role: "Role", role_admin: "Administrator", role_user: "Standard User",
+                btn_login: "Sign In", btn_logging_in: "Signing in...", user_label: "User: ",
+                nav_menu: "Menu", nav_invoices: "New Upload", nav_archive: "GoBD Archive",
+                status_title: "System Status", status_gobd: "GoBD Compliant", status_enc: "Encrypted",
+                status_elster: "ELSTER: Disconnected", status_elster_connected: "ELSTER: Connected", user_loc: "Ludwigshafen, DE",
+                header_workflow: "Invoice Workflow", header_archive: "File Archive",
+                step1_title: "Upload Document", step1_desc: "Upload invoices (PDF, Image, Excel).",
+                up_local: "Computer", up_cam: "Camera", up_drive: "Drive (Simulated)",
+                step1_processing: "AI Analysis...", step1_processing_sub: "Extracting data", 
+                btn_remove_file: "Remove", btn_process: "Start AI Analysis",
+                step2_title: "Verify Data", step2_desc: "Verify AI data and set a custom folder name.",
+                step2_folder_label: "Folder Name (Custom)", step2_vendor: "Vendor", 
+                step2_date: "Date", step2_net: "Net (€)", step2_vat: "VAT 19% (€)",
+                btn_back: "Back", btn_confirm: "Save & Continue", btn_cancel: "Cancel",
+                step3_title: "Archived to Folder", step3_desc: "Successfully saved to folder.",
+                btn_sync: "Sync to ELSTER", btn_syncing: "Syncing...", btn_synced: "Successfully Connected",
+                btn_go_archive: "Go to Archive", btn_restart: "Upload New Invoice",
+                archive_title: "GoBD File Manager", archive_desc: "Structured view of your custom folders.", archive_empty: "Archive is empty.",
+                auth_title: "ELSTER Authorization", auth_subtitle: "Certificate & PIN required",
+                auth_warning: "To transmit to the tax office, your personal ELSTER certificate (.pfx) is required for digital signature.",
+                auth_cert: "Certificate File", auth_pin: "Certificate PIN", btn_auth_sync: "Sign & Send",
+                msg_drive_sim: "Connecting to Google Drive API... (Simulation complete)",
+                confirm_delete: "Are you sure you want to permanently delete this file?",
+                err_preview: "Direct browser preview not supported for this file type. Please download."
+            }
+        };
+
+        // --- Core Functions ---
+        function switchLanguage(lang) {
+            currentLang = lang;
+            const btnDe = document.getElementById('btn-lang-de');
+            const btnEn = document.getElementById('btn-lang-en');
+            if(btnDe && btnEn) {
+                if(lang === 'de') {
+                    btnDe.className = "px-3 py-1 text-sm font-medium rounded-md bg-white shadow-sm text-brand-600 transition-all";
+                    btnEn.className = "px-3 py-1 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all";
+                } else {
+                    btnEn.className = "px-3 py-1 text-sm font-medium rounded-md bg-white shadow-sm text-brand-600 transition-all";
+                    btnDe.className = "px-3 py-1 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all";
+                }
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (!i18n[lang] || !i18n[lang][key]) return; 
+
+                if (key === 'status_elster') el.innerText = elsterConnected ? i18n[lang].status_elster_connected : i18n[lang].status_elster;
+                else if (key === 'btn_sync') el.innerText = i18n[lang][key]; // Now purely handled since success replaces it
+                else if (key === 'btn_login') {
+                    const btnLogin = document.getElementById('btn-submit-login');
+                    if (btnLogin && btnLogin.classList.contains('opacity-90')) el.innerText = i18n[lang].btn_logging_in;
+                    else el.innerText = i18n[lang][key];
+                } else el.innerText = i18n[lang][key];
+            });
+
+            updateSidebarRole();
+            if(!document.getElementById('view-archive').classList.contains('hidden')) renderArchive(); 
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('hidden'); void toast.offsetWidth;
+            toast.classList.remove('opacity-0'); toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100'); toast.classList.add('opacity-0');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        // --- Authentication ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            if(loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); 
+                    const btn = document.getElementById('btn-submit-login');
+                    const icon = document.getElementById('login-icon');
+                    const text = document.getElementById('login-text');
+                    currentUserRole = document.getElementById('user-role').value;
+
+                    btn.classList.add('opacity-90', 'cursor-not-allowed');
+                    icon.className = 'fa-solid fa-circle-notch fa-spin';
+                    text.innerText = i18n[currentLang].btn_logging_in;
+
+                    setTimeout(() => {
+                        btn.classList.remove('opacity-90', 'cursor-not-allowed');
+                        icon.className = 'fa-solid fa-arrow-right-to-bracket';
+                        text.innerText = i18n[currentLang].btn_login;
+                        updateSidebarRole();
+
+                        const loginView = document.getElementById('login-view');
+                        const appView = document.getElementById('app-view');
+
+                        loginView.classList.add('opacity-0');
+                        setTimeout(() => {
+                            loginView.classList.add('hidden'); 
+                            appView.classList.remove('hidden');
+                            appView.classList.add('flex');
+                            switchMainView('workflow'); 
+                            setTimeout(() => appView.classList.remove('opacity-0'), 50);
+                        }, 500);
+                    }, 1000);
+                });
+            }
+            const elsterForm = document.getElementById('elster-auth-form');
+            if(elsterForm) elsterForm.addEventListener('submit', executeElsterSync);
+        });
+
+        function handleLogout() {
+            const loginView = document.getElementById('login-view');
+            const appView = document.getElementById('app-view');
+            
+            appView.classList.add('opacity-0');
+            setTimeout(() => {
+                appView.classList.remove('flex'); appView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+                resetFlow(); 
+                setTimeout(() => loginView.classList.remove('opacity-0'), 50);
+            }, 500);
+        }
+
+        function updateSidebarRole() {
+            const roleEl = document.getElementById('sidebar-role');
+            if(roleEl) roleEl.innerText = i18n[currentLang].user_label + (currentUserRole === 'Admin' ? i18n[currentLang].role_admin : i18n[currentLang].role_user);
+        }
+
+        // --- Navigation ---
+        function switchMainView(view) {
+            const vWorkflow = document.getElementById('view-workflow');
+            const vArchive = document.getElementById('view-archive');
+            const navW = document.getElementById('nav-workflow');
+            const navA = document.getElementById('nav-archive');
+            const title = document.getElementById('header-title');
+
+            if(view === 'workflow') {
+                vArchive.classList.add('hidden'); vWorkflow.classList.remove('hidden');
+                navW.className = "w-full flex items-center px-2 py-2.5 rounded-lg transition-colors tab-active";
+                navA.className = "w-full flex items-center px-2 py-2.5 rounded-lg transition-colors tab-inactive";
+                title.innerText = i18n[currentLang].header_workflow;
+                if(!currentFileObj && document.getElementById('step-1').classList.contains('hidden')) goToStep(1);
+            } else {
+                vWorkflow.classList.add('hidden'); vArchive.classList.remove('hidden');
+                navA.className = "w-full flex items-center px-2 py-2.5 rounded-lg transition-colors tab-active";
+                navW.className = "w-full flex items-center px-2 py-2.5 rounded-lg transition-colors tab-inactive";
+                title.innerText = i18n[currentLang].header_archive;
+                renderArchive();
+            }
+        }
+
+        // --- LIVE CAMERA LOGIC (WebRTC) ---
+        async function openCameraModal() {
+            const modal = document.getElementById('camera-modal');
+            const content = document.getElementById('camera-modal-content');
+            const video = document.getElementById('camera-video');
+
+            modal.classList.remove('hidden'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); modal.classList.add('opacity-100');
+            content.classList.remove('scale-95'); content.classList.add('scale-100');
+
+            try {
+                // Request camera access (prefer back camera if on mobile)
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = videoStream;
+            } catch (err) {
+                alert("Camera access denied or not available on this device.\nError: " + err.message);
+                closeCameraModal();
+            }
+        }
+
+        function closeCameraModal() {
+            const modal = document.getElementById('camera-modal');
+            const content = document.getElementById('camera-modal-content');
+            
+            // Stop the camera stream to turn off the light
+            if(videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+
+            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
+            content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function takeSnapshot() {
+            const video = document.getElementById('camera-video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+            currentFileObj = {
+                id: 'file_' + Date.now(),
+                name: 'Snapshot_' + new Date().getTime().toString().slice(-6) + '.jpg', 
+                size: '---', // Estimated
+                type: 'image/jpeg',
+                dataUrl: dataUrl, 
+                date: new Date().toLocaleDateString('de-DE')
+            };
+
+            closeCameraModal();
+            showFilePreview();
+        }
+
+        // --- File Handling (Local & Drive) ---
+        function simulateDriveUpload() {
+            showToast(i18n[currentLang].msg_drive_sim);
+            setTimeout(() => document.getElementById('local-file-input').click(), 1000);
+        }
+
+        function formatBytes(bytes) {
+            if(bytes === 0) return '0 Bytes';
+            const k = 1024, dm = 2, sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function handleFileSelection(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentFileObj = {
+                    id: 'file_' + Date.now(),
+                    name: file.name, 
+                    size: formatBytes(file.size), 
+                    type: file.type,
+                    dataUrl: event.target.result, 
+                    date: new Date().toLocaleDateString('de-DE')
+                };
+                showFilePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showFilePreview() {
+            document.getElementById('drop-content').classList.add('hidden');
+            const previewArea = document.getElementById('file-preview-area');
+            const visual = document.getElementById('preview-visual');
+            
+            previewArea.classList.remove('hidden');
+            document.getElementById('preview-filename').innerText = currentFileObj.name;
+            document.getElementById('preview-filesize').innerText = currentFileObj.size;
+
+            visual.innerHTML = '';
+            if(currentFileObj.type.startsWith('image/')) visual.innerHTML = `<img src="${currentFileObj.dataUrl}" class="w-full h-full object-cover">`;
+            else if (currentFileObj.name.toLowerCase().endsWith('.pdf')) visual.innerHTML = `<i class="fa-solid fa-file-pdf text-4xl text-red-500"></i>`;
+            else if (currentFileObj.name.match(/\.(xls|xlsx)$/i)) visual.innerHTML = `<i class="fa-solid fa-file-excel text-4xl text-emerald-600"></i>`;
+            else visual.innerHTML = `<i class="fa-solid fa-file text-4xl text-slate-400"></i>`;
+        }
+
+        function clearFile() {
+            currentFileObj = null;
+            document.getElementById('local-file-input').value = "";
+            document.getElementById('file-preview-area').classList.add('hidden');
+            document.getElementById('drop-content').classList.remove('hidden');
+        }
+
+        function processFile() {
+            const overlay = document.getElementById('processing-overlay');
+            overlay.classList.remove('hidden'); overlay.classList.add('flex');
+            setTimeout(() => {
+                overlay.classList.add('hidden'); overlay.classList.remove('flex');
+                document.getElementById('input-vendor').value = "Beispiel Lieferant GmbH";
+                document.getElementById('input-date').value = "2026-04-13";
+                document.getElementById('input-net').value = "250.00";
+                document.getElementById('input-vat').value = "47.50";
+                document.getElementById('custom-folder-name').value = "Beispiel_April_26";
+                goToStep(2);
+            }, 1500);
+        }
+
+        function goToStep(stepNumber) {
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+
+            const target = document.getElementById(`step-${stepNumber}`);
+            target.classList.remove('hidden'); target.classList.remove('fade-in');
+            void target.offsetWidth; target.classList.add('fade-in');
+
+            if(stepNumber === 3) {
+                const folderName = document.getElementById('custom-folder-name').value || "Unsortiert";
+                currentFileObj.folder = folderName;
+                archivedFiles.push({...currentFileObj}); 
+                document.getElementById('archive-success-desc').innerText = `${i18n[currentLang].step3_desc} (Ordner: ${folderName})`;
+            }
+        }
+
+        // --- Elster Sync Logic ---
+        function openElsterModal() {
+            const modal = document.getElementById('elster-auth-modal');
+            const content = document.getElementById('elster-modal-content');
+            modal.classList.remove('hidden'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); modal.classList.add('opacity-100');
+            content.classList.remove('scale-95'); content.classList.add('scale-100');
+            document.getElementById('elster-auth-form').reset();
+        }
+
+        function closeElsterModal() {
+            const modal = document.getElementById('elster-auth-modal');
+            const content = document.getElementById('elster-modal-content');
+            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
+            content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300); 
+        }
+
+        function executeElsterSync(e) {
+            e.preventDefault(); 
+            const btnModal = document.getElementById('btn-modal-auth');
+            const iconModal = document.getElementById('auth-icon');
+            const textModal = document.getElementById('auth-text');
+
+            btnModal.classList.add('opacity-90', 'cursor-not-allowed');
+            iconModal.className = 'fa-solid fa-spinner fa-spin';
+            textModal.innerText = "Autorisiere...";
+
+            setTimeout(() => {
+                closeElsterModal();
+                setTimeout(() => {
+                    btnModal.classList.remove('opacity-90', 'cursor-not-allowed');
+                    iconModal.className = 'fa-solid fa-shield-check';
+                    textModal.innerText = i18n[currentLang].btn_auth_sync;
+                }, 300);
+
+                // UI Changes in Step 3
+                document.getElementById('btn-back-step3').classList.add('hidden'); // Disable back
+                document.getElementById('btn-sync').classList.add('hidden'); // Hide Sync Button entirely
+                
+                const postActions = document.getElementById('post-sync-actions');
+                postActions.classList.remove('hidden'); 
+                postActions.classList.add('flex'); // Show Success state & Action buttons
+                
+                elsterConnected = true;
+                const sidebarIcon = document.getElementById('elster-icon');
+                const sidebarText = document.getElementById('elster-text');
+                const sidebarContainer = document.getElementById('elster-status-container');
+                sidebarIcon.className = 'fa-solid fa-link text-brand-400';
+                sidebarText.innerText = i18n[currentLang].status_elster_connected;
+                sidebarContainer.classList.add('text-brand-50');
+            }, 2000);
+        }
+
+        function resetFlow() {
+            // Restore UI for next time
+            document.getElementById('btn-sync').classList.remove('hidden'); 
+            const postActions = document.getElementById('post-sync-actions');
+            postActions.classList.remove('flex'); postActions.classList.add('hidden');
+            document.getElementById('btn-back-step3').classList.remove('hidden');
+            
+            clearFile();
+            goToStep(1);
+        }
+
+        // --- Archive Manager ---
+        function deleteArchivedFile(id) {
+            if(confirm(i18n[currentLang].confirm_delete)) {
+                archivedFiles = archivedFiles.filter(f => f.id !== id);
+                renderArchive();
+            }
+        }
+
+        function openPreviewModal(id) {
+            const file = archivedFiles.find(f => f.id === id);
+            if(!file) return;
+
+            const modal = document.getElementById('preview-modal');
+            const content = document.getElementById('preview-modal-content');
+            const title = document.getElementById('preview-modal-title');
+            const iconContainer = document.getElementById('preview-modal-icon');
+            const body = document.getElementById('preview-modal-body');
+
+            title.innerText = file.name;
+            body.innerHTML = ''; 
+
+            if(file.type.startsWith('image/')) {
+                iconContainer.innerHTML = '<i class="fa-solid fa-image"></i>';
+                body.innerHTML = `<img src="${file.dataUrl}" class="max-w-full max-h-full object-contain p-4 shadow-xl">`;
+            } else if (file.name.toLowerCase().endsWith('.pdf')) {
+                iconContainer.innerHTML = '<i class="fa-solid fa-file-pdf text-red-500"></i>';
+                body.innerHTML = `<iframe src="${file.dataUrl}" class="w-full h-full border-0"></iframe>`;
+            } else {
+                iconContainer.innerHTML = '<i class="fa-solid fa-file-excel text-emerald-600"></i>';
+                body.innerHTML = `
+                    <div class="text-center p-8 bg-white rounded-xl shadow-lg border border-slate-200">
+                        <i class="fa-solid fa-file-excel text-6xl text-emerald-500 mb-4"></i>
+                        <h4 class="text-lg font-bold text-slate-800 mb-2">${file.name}</h4>
+                        <p class="text-sm text-slate-500 mb-6">${i18n[currentLang].err_preview}</p>
+                        <a href="${file.dataUrl}" download="${file.name}" class="px-6 py-2.5 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition-colors inline-flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Download File
+                        </a>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); modal.classList.add('opacity-100');
+            content.classList.remove('scale-95'); content.classList.add('scale-100');
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('preview-modal');
+            const content = document.getElementById('preview-modal-content');
+            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
+            content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { 
+                modal.classList.add('hidden');
+                document.getElementById('preview-modal-body').innerHTML = ''; 
+            }, 300);
+        }
+
+        function renderArchive() {
+            const container = document.getElementById('archive-folders-container');
+            if(archivedFiles.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-4xl mb-3"></i>
+                        <p>${i18n[currentLang].archive_empty}</p>
+                    </div>`;
+                return;
+            }
+
+            const grouped = archivedFiles.reduce((acc, file) => {
+                if(!acc[file.folder]) acc[file.folder] = [];
+                acc[file.folder].push(file); return acc;
+            }, {});
+
+            let html = '';
+            for (const [folder, files] of Object.entries(grouped)) {
+                let filesHtml = files.map(f => {
+                    let iconHtml = f.type.startsWith('image/') ? `<img src="${f.dataUrl}" class="w-8 h-8 rounded object-cover shadow-sm">` : 
+                                   f.name.toLowerCase().endsWith('.pdf') ? `<i class="fa-solid fa-file-pdf text-2xl text-red-500"></i>` :
+                                   `<i class="fa-solid fa-file-excel text-2xl text-emerald-600"></i>`;
+                    return `
+                    <div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-lg hover:shadow-md transition-shadow group">
+                        <div class="flex items-center gap-4 w-3/4">
+                            <div class="w-10 flex justify-center">${iconHtml}</div>
+                            <div class="truncate">
+                                <p class="text-sm font-semibold text-slate-800 truncate">${f.name}</p>
+                                <p class="text-xs text-slate-400">${f.date} • ${f.size}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                            <button type="button" onclick="openPreviewModal('${f.id}')" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-brand-50 hover:text-brand-600 transition-colors" title="Preview">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button type="button" onclick="deleteArchivedFile('${f.id}')" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors" title="Löschen">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                html += `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-4 fade-in">
+                    <div class="bg-slate-100 px-5 py-3 border-b border-slate-200 flex items-center gap-3">
+                        <i class="fa-solid fa-folder text-brand-500 text-lg"></i>
+                        <h4 class="font-bold text-slate-700">${folder}</h4>
+                        <span class="ml-auto text-xs font-medium bg-white px-2 py-1 rounded-full text-slate-500 shadow-sm">${files.length} Datei(en)</span>
+                    </div>
+                    <div class="p-4 space-y-2">${filesHtml}</div>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // Init
+        switchLanguage('de');
+    </script>
+</body>
+</html>
