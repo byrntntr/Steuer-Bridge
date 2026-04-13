@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tatasae Steuer Bridge - Professional Edition</title>
+    <title>SteuerBridge Enterprise - Professional Build</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,486 +13,383 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    },
-                    colors: {
-                        brand: { 50: '#f5f7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { brand: { 50: '#f5f7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' } }
                 }
             }
         }
     </script>
     <style>
-        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-active { background-color: #4f46e5; color: white; }
-        .status-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-active { background-color: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .status-badge { font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; }
+        .hidden-el { display: none !important; }
     </style>
 </head>
-<body class="bg-[#f8fafc] font-sans text-slate-800 antialiased h-screen overflow-hidden">
+<body class="bg-[#f0f2f5] font-sans text-slate-800 antialiased h-screen overflow-hidden">
 
-    <div class="absolute top-6 right-8 z-[100] flex gap-4 items-center">
-        <div class="flex bg-white shadow-sm p-1 rounded-lg border border-slate-200">
-            <button onclick="switchLanguage('de')" id="btn-lang-de" class="px-3 py-1 text-xs font-bold rounded-md bg-brand-600 text-white transition-all">DE</button>
-            <button onclick="switchLanguage('en')" id="btn-lang-en" class="px-3 py-1 text-xs font-bold rounded-md text-slate-500 transition-all">EN</button>
+    <div id="top-nav" class="hidden absolute top-6 right-8 z-[100] flex gap-4 items-center">
+        <div class="flex bg-white shadow-md p-1 rounded-xl border border-slate-200">
+            <button onclick="switchLanguage('de')" id="btn-lang-de" class="px-3 py-1 text-xs font-bold rounded-lg bg-brand-600 text-white transition-all">DE</button>
+            <button onclick="switchLanguage('en')" id="btn-lang-en" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-500 transition-all">EN</button>
         </div>
+        <button onclick="handleLogout()" class="w-10 h-10 bg-white border rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 shadow-sm transition-all">
+            <i class="fa-solid fa-power-off text-sm"></i>
+        </button>
     </div>
 
-    <div id="login-view" class="absolute inset-0 z-50 flex items-center justify-center bg-brand-900 transition-opacity duration-500">
-        <div class="w-full max-w-md bg-white p-10 rounded-2xl shadow-2xl relative overflow-hidden">
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3">
-                    <i class="fa-solid fa-bridge text-white text-2xl"></i>
-                </div>
-                <h1 class="text-2xl font-bold text-slate-900">Steuer<span class="text-brand-600">Bridge</span></h1>
-                <p class="text-slate-500 text-sm mt-1" data-i18n="login_subtitle">Professional Tax Document Management</p>
+    <div id="login-view" class="absolute inset-0 z-[150] flex items-center justify-center bg-brand-900 px-6">
+        <div class="w-full max-w-md bg-white p-10 rounded-[32px] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-brand-600 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 shadow-xl">
+                <i class="fa-solid fa-bridge text-white text-3xl"></i>
             </div>
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">Steuer<span class="text-brand-600">Bridge</span></h1>
+            <p class="text-slate-400 text-sm mb-8">Professional Tax Document Management</p>
+            
             <form id="login-form" class="space-y-4">
-                <input type="email" value="accountant@tatasae.de" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
-                <input type="password" value="password123" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
-                <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg transition-all" data-i18n="btn_login">Login Access</button>
+                <input type="email" value="accountant@tatasae.de" class="w-full px-5 py-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-brand-500">
+                <input type="password" value="password123" class="w-full px-5 py-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-brand-500">
+                <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg transition-all" data-i18n="btn_login">Login Access</button>
             </form>
         </div>
     </div>
 
     <div id="app-view" class="hidden h-screen w-full opacity-0 transition-opacity duration-500">
-        <aside class="w-64 bg-brand-900 text-slate-300 flex flex-col h-full shadow-2xl relative z-20">
-            <div class="h-20 flex items-center px-6 border-b border-white/10">
-                <span class="text-white font-bold tracking-tight text-xl">Steuer<span class="text-brand-500">Bridge</span></span>
+        
+        <aside class="w-64 bg-brand-900 text-slate-300 flex flex-col h-full shadow-2xl z-20">
+            <div class="h-20 flex items-center px-6 border-b border-white/5 bg-black/20 text-white font-bold text-xl tracking-tight">
+                <div class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center mr-3 text-brand-600 shadow-sm"><i class="fa-solid fa-bridge text-sm"></i></div>
+                Bridge
             </div>
-            <div class="px-4 py-6 flex-1 space-y-2">
+            
+            <nav class="px-4 py-8 flex-1 space-y-2">
                 <button onclick="switchMainView('workflow')" id="nav-workflow" class="w-full flex items-center px-4 py-3 rounded-xl transition-all tab-active">
-                    <i class="fa-solid fa-plus-circle mr-3"></i><span data-i18n="nav_invoices">New Document</span>
+                    <i class="fa-solid fa-cloud-arrow-up mr-3 text-sm"></i><span data-i18n="nav_invoices" class="text-sm font-medium">Beleg-Upload</span>
                 </button>
                 <button onclick="switchMainView('archive')" id="nav-archive" class="w-full flex items-center px-4 py-3 rounded-xl transition-all hover:bg-white/5">
-                    <i class="fa-solid fa-table-list mr-3"></i><span data-i18n="nav_archive">Archiv & Status</span>
+                    <i class="fa-solid fa-box-archive mr-3 text-sm"></i><span data-i18n="nav_archive" class="text-sm font-medium text-slate-400">GoBD Archiv</span>
                 </button>
+            </nav>
+
+            <div class="p-4 border-t border-white/5">
+                <div class="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/5">
+                    <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold shadow-lg">TM</div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-bold text-white truncate">Tarek M.</p>
+                        <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none mt-1">Assistant Tax Consultant</p>
+                        <p class="text-[8px] text-brand-400 italic truncate mt-0.5">Ludwigshafen, DE</p>
+                    </div>
+                </div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col h-full overflow-hidden">
-            <header class="h-20 bg-white border-b flex items-center px-8">
-                <h2 class="text-lg font-bold text-slate-800" id="header-title">Dokumenten-Workflow</h2>
+            <header class="h-20 bg-white border-b flex items-center px-8 justify-between relative z-10">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-lg font-bold text-slate-800" id="header-title" data-i18n="header_workflow">Workflow</h2>
+                    <div class="flex items-center gap-1.5 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <span class="text-[9px] font-black uppercase text-emerald-600 tracking-widest">ELSTER Live</span>
+                    </div>
+                </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-8 flex justify-center bg-slate-50">
-                
-                <div id="view-workflow" class="w-full max-w-4xl space-y-6">
-                    <div id="step-1" class="bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center fade-in">
-                        <div class="mb-8">
-                            <h3 class="text-2xl font-bold mb-2" data-i18n="step1_title">Beleg erfassen</h3>
-                            <p class="text-slate-500" data-i18n="step1_desc">Laden Sie eine Rechnung hoch (PDF/Scan)</p>
+            <div class="flex-1 overflow-y-auto p-8 flex justify-center bg-[#f8f9fc]">
+                <div id="view-workflow" class="w-full max-w-5xl">
+                    <div id="phase-upload" class="bg-white p-12 rounded-[32px] shadow-sm border border-slate-200 text-center fade-in">
+                        <h3 class="text-2xl font-bold mb-2" data-i18n="step1_title">Beleg erfassen</h3>
+                        <p class="text-slate-400 text-sm mb-12">Digital submission according to German Tax Law (GoBD)</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <button onclick="document.getElementById('local-file-input').click()" class="group p-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] hover:border-brand-500 hover:bg-brand-50 transition-all">
+                                <i class="fa-solid fa-desktop text-3xl text-slate-300 mb-4 group-hover:text-brand-500 group-hover:scale-110 transition-all"></i>
+                                <p class="font-bold text-slate-700" data-i18n="up_local">Lokal</p>
+                            </button>
+                            <button onclick="triggerDrive()" class="group p-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] hover:border-brand-500 hover:bg-brand-50 transition-all">
+                                <i class="fa-brands fa-google-drive text-3xl text-slate-300 mb-4 group-hover:text-brand-500 group-hover:scale-110 transition-all"></i>
+                                <p class="font-bold text-slate-700">Google Drive</p>
+                            </button>
+                            <button onclick="openCameraModal()" class="group p-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] hover:border-brand-500 hover:bg-brand-50 transition-all">
+                                <i class="fa-solid fa-camera text-3xl text-slate-300 mb-4 group-hover:text-brand-500 group-hover:scale-110 transition-all"></i>
+                                <p class="font-bold text-slate-700" data-i18n="up_cam">Kamera</p>
+                            </button>
                         </div>
                         <input type="file" id="local-file-input" class="hidden" onchange="handleFileSelection(event)">
-                        <div class="flex flex-col md:flex-row gap-4 justify-center">
-                            <button onclick="document.getElementById('local-file-input').click()" class="flex-1 max-w-xs p-6 bg-brand-50 border-2 border-dashed border-brand-200 rounded-3xl hover:bg-brand-100 transition-all group">
-                                <i class="fa-solid fa-file-pdf text-3xl text-brand-600 mb-3 group-hover:scale-110 transition-transform"></i>
-                                <div class="font-bold text-brand-900" data-i18n="up_local">Lokal Upload</div>
-                            </button>
-                            <button onclick="openCameraModal()" class="flex-1 max-w-xs p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl hover:bg-slate-100 transition-all group">
-                                <i class="fa-solid fa-camera text-3xl text-slate-400 mb-3 group-hover:scale-110 transition-transform"></i>
-                                <div class="font-bold text-slate-700" data-i18n="up_cam">Scan mit Kamera</div>
-                            </button>
-                        </div>
-                        
-                        <div id="file-preview-area" class="hidden mt-10 p-6 bg-slate-50 rounded-2xl border border-slate-200 fade-in">
-                            <div class="flex items-center gap-4 mb-6">
-                                <div id="preview-visual" class="w-16 h-20 bg-white rounded border overflow-hidden shadow-sm"></div>
-                                <div class="text-left"><p id="preview-filename" class="font-bold text-sm truncate w-48"></p><p class="text-xs text-slate-400">Ready for processing</p></div>
-                            </div>
-                            <button onclick="processFile()" class="w-full py-4 bg-brand-600 text-white font-bold rounded-xl flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="btn_process">KI-Daten extrahieren</span>
-                            </button>
-                        </div>
-                        
-                        <div id="processing-overlay" class="absolute inset-0 bg-white/95 z-10 hidden flex-col items-center justify-center">
-                            <div class="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
-                            <p class="font-bold text-brand-900" data-i18n="step1_processing">KI identifiziert Konten...</p>
+                        <div id="file-ready-area" class="hidden mt-12 p-8 bg-brand-900 text-white rounded-[2rem] fade-in shadow-xl">
+                            <p id="ready-filename" class="font-mono text-brand-300 mb-6 text-sm"></p>
+                            <button onclick="simulateAI()" class="px-12 py-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl shadow-lg transition-all uppercase text-xs tracking-widest">Start AI Extraction</button>
                         </div>
                     </div>
 
-                    <div id="step-2" class="hidden bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden fade-in">
-                        <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
-                            <div><h3 class="font-bold">Belegverificierung</h3><p class="text-xs text-slate-400">Vorschau für ELSTER Voranmeldung</p></div>
-                            <span class="bg-brand-500 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest">GoBD Check OK</span>
+                    <div id="phase-verify" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8 fade-in">
+                        <div class="lg:col-span-1">
+                            <div id="v-preview" class="aspect-[3/4] bg-slate-900 rounded-[2rem] overflow-hidden flex items-center justify-center border-4 border-white shadow-2xl"></div>
                         </div>
-                        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="space-y-4">
-                                <h4 class="text-xs font-bold uppercase text-slate-400 tracking-widest mb-4">Stammdaten</h4>
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Lieferant / Vendor</label><input type="text" id="input-vendor" class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
+                        <div class="lg:col-span-2 bg-white rounded-[2rem] border border-slate-200 p-8 shadow-sm">
+                            <button onclick="goToPhase('upload')" class="text-[10px] font-black text-slate-400 mb-8 flex items-center gap-2 hover:text-brand-600 transition-all uppercase tracking-widest"><i class="fa-solid fa-arrow-left text-[8px]"></i> Back to source</button>
+                            <div class="space-y-5">
+                                <div><label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Lieferant / Vendor</label><input type="text" id="v-vendor" class="w-full p-4 bg-slate-50 border rounded-xl font-bold outline-none"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Belegdatum</label><input type="date" id="input-date" class="w-full p-3 bg-slate-50 border rounded-xl"></div>
-                                    <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Rechnungsnummer</label><input type="text" id="input-inv-num" value="RE-2026-0042" class="w-full p-3 bg-slate-50 border rounded-xl font-mono"></div>
+                                    <div><label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Inv-Nr</label><input type="text" id="v-inv" class="w-full p-4 bg-slate-50 border rounded-xl outline-none font-mono"></div>
+                                    <div><label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Datum</label><input type="date" id="v-date" class="w-full p-4 bg-slate-50 border rounded-xl font-mono"></div>
                                 </div>
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Ordner / Category</label><input type="text" id="custom-folder-name" class="w-full p-3 bg-indigo-50 border-indigo-100 border rounded-xl text-indigo-700 font-bold"></div>
-                            </div>
-                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                                <h4 class="text-xs font-bold uppercase text-slate-400 tracking-widest mb-4">Finanzielle Details</h4>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Netto Betrag</label><input type="number" step="0.01" id="input-netto" class="w-full p-3 bg-white border rounded-xl font-mono text-right" placeholder="0.00"></div>
-                                    <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">MwSt. Satz</label>
-                                        <select id="input-tax-rate" class="w-full p-3 bg-white border rounded-xl font-bold">
-                                            <option value="19">19% (Standard)</option><option value="7">7% (Ermäßigt)</option><option value="0">0% (Export/Steuerfrei)</option>
+                                    <div><label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Netto (€)</label><input type="number" id="v-netto" oninput="recalc()" class="w-full p-4 border rounded-xl font-mono font-bold text-lg"></div>
+                                    <div><label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Tax Rate</label>
+                                        <select id="v-tax-rate" onchange="recalc()" class="w-full p-4 border rounded-xl font-bold bg-white">
+                                            <option value="19">Regular (19%)</option><option value="7">Reduced (7%)</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Umsatzsteuer Betrag</label><input type="number" step="0.01" id="input-tax-val" class="w-full p-3 bg-white border rounded-xl font-mono text-right text-brand-600" readonly></div>
-                                <hr class="border-slate-200">
-                                <div class="flex justify-between items-center"><span class="font-bold text-slate-900">Gesamt Brutto</span><span id="display-brutto" class="text-xl font-bold font-mono text-brand-600">€ 0,00</span></div>
+                                <div class="bg-brand-900 rounded-2xl p-6 flex justify-between items-center text-white border-b-4 border-brand-500 shadow-inner">
+                                    <div><span class="font-bold uppercase text-[10px] text-brand-400 block tracking-widest">Total Brutto</span><span id="v-brutto" class="text-3xl font-mono font-bold">€ 0,00</span></div>
+                                    <i class="fa-solid fa-receipt text-3xl opacity-20"></i>
+                                </div>
+                                <button onclick="finalizeArchive()" class="w-full py-5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs" data-i18n="btn_confirm">Archive Document</button>
                             </div>
-                        </div>
-                        <div class="px-8 py-6 bg-slate-100 flex justify-between items-center">
-                            <button onclick="goToStep(1)" class="text-slate-500 font-bold text-sm hover:text-slate-800 transition-all"><i class="fa-solid fa-chevron-left mr-2"></i>Edit File</button>
-                            <button onclick="goToStep(3)" class="px-10 py-4 bg-brand-600 text-white font-bold rounded-2xl shadow-lg hover:scale-105 transition-all">Bestätigen & Archivieren</button>
                         </div>
                     </div>
 
-                    <div id="step-3" class="hidden bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center fade-in">
-                        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-check-circle text-4xl"></i></div>
-                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Beleg Archiviert!</h3>
-                        <p class="text-slate-500 mb-10">Dokument wurde GoBD-konform im Ordner gespeichert.</p>
-                        
-                        <div id="sync-container" class="space-y-4">
-                            <button onclick="openElsterModal()" class="w-full py-5 bg-slate-900 text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:bg-black transition-all shadow-xl">
-                                <i class="fa-solid fa-cloud-arrow-up text-brand-400"></i> <span data-i18n="btn_sync">Übermittlung an ELSTER API</span>
+                    <div id="phase-finish" class="hidden max-w-xl mx-auto text-center fade-in bg-white p-12 rounded-[3rem] border shadow-2xl">
+                        <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"><i class="fa-solid fa-check text-3xl"></i></div>
+                        <h3 class="text-3xl font-bold mb-2 tracking-tight" data-i18n="step3_title">Sukses!</h3>
+                        <p class="text-slate-400 mb-10 text-sm italic">File is now revision-safe in the digital archive.</p>
+                        <div id="elster-actions" class="space-y-4">
+                            <button onclick="openElsterModal()" class="w-full py-5 bg-slate-900 hover:bg-black text-white font-bold rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-signature text-brand-400"></i> ELSTER Sign & Submit
                             </button>
-                            <button onclick="resetFlow()" class="w-full py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all" data-i18n="btn_restart">Später übermitteln / Neue Rechnung</button>
+                            <button onclick="resetFlow()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold rounded-2xl transition-all" data-i18n="btn_restart">New Upload</button>
                         </div>
-
-                        <div id="post-sync-actions" class="hidden space-y-4 fade-in">
-                            <div class="bg-emerald-600 text-white p-5 rounded-2xl font-bold flex items-center justify-center gap-3">
-                                <i class="fa-solid fa-shield-check"></i> <span data-i18n="btn_synced">Status: Übermittelt (ELSTER Log #4412)</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <button onclick="switchMainView('archive')" class="py-4 bg-brand-50 text-brand-600 font-bold rounded-2xl border border-brand-200">Arsip & Berichte</button>
-                                <button onclick="resetFlow()" class="py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-lg">Neue Erfassung</button>
+                        <div id="elster-done" class="hidden space-y-4 fade-in">
+                            <div class="p-6 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-paper-plane"></i> Sent to Tax Office!</div>
+                            <div class="grid grid-cols-2 gap-4 pt-4">
+                                <button onclick="switchMainView('archive')" class="py-4 border border-brand-100 text-brand-600 font-bold rounded-2xl hover:bg-brand-50 transition-all uppercase text-[10px] tracking-widest">Archive</button>
+                                <button onclick="resetFlow()" class="py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg transition-all uppercase text-[10px] tracking-widest">New Upload</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="view-archive" class="w-full max-w-5xl hidden fade-in">
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="p-8 border-b bg-white flex justify-between items-center">
-                            <div><h3 class="text-xl font-bold">Dokumenten-Bericht</h3><p class="text-sm text-slate-500">Umsatzsteuervoranmeldung & Archiv-Status</p></div>
-                            <div class="flex gap-4">
-                                <div class="text-center px-4 border-r"><p class="text-[10px] font-bold text-slate-400 uppercase">Total Items</p><p id="count-total" class="font-bold text-slate-800">0</p></div>
-                                <div class="text-center px-4"><p class="text-[10px] font-bold text-slate-400 uppercase">Pending</p><p id="count-pending" class="font-bold text-amber-500">0</p></div>
-                                <div class="text-center px-4"><p class="text-[10px] font-bold text-slate-400 uppercase">Submitted</p><p id="count-submitted" class="font-bold text-emerald-500">0</p></div>
+                <div id="view-archive" class="w-full max-w-6xl hidden fade-in">
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
+                            <div><h3 class="font-bold text-xl tracking-tight" data-i18n="archive_title">GoBD Datei-Manager</h3><p class="text-xs text-slate-400 italic">Audit-log for tax compliance</p></div>
+                            <div class="flex gap-6">
+                                <div class="text-center"><span class="block text-[10px] font-black text-slate-400 uppercase mb-1">Pending</span><span id="count-p" class="text-xl font-mono font-bold text-amber-500">0</span></div>
+                                <div class="text-center"><span class="block text-[10px] font-black text-slate-400 uppercase mb-1">Submitted</span><span id="count-s" class="text-xl font-mono font-bold text-emerald-500">0</span></div>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-slate-50 border-b border-slate-100">
-                                    <tr>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Datum</th>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Lieferant / Ref</th>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Netto</th>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">MwSt</th>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Brutto</th>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Status</th>
-                                        <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Aktion</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="archive-table-body" class="divide-y divide-slate-50">
-                                    </tbody>
-                            </table>
-                        </div>
-                        <div id="archive-empty-state" class="p-20 text-center text-slate-400 hidden">
-                            <i class="fa-solid fa-folder-open text-4xl mb-4 opacity-20"></i><p>Keine Dokumente im Archiv gefunden.</p>
-                        </div>
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                                <tr><th class="p-6">Belegdatum</th><th class="p-6">Lieferant / Status</th><th class="p-6 text-center">ELSTER Status</th><th class="p-6 text-right">Aksi</th></tr>
+                            </thead>
+                            <tbody id="archive-table-body" class="divide-y border-t border-slate-100"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="camera-modal" class="fixed inset-0 bg-black/95 z-[110] hidden flex items-center justify-center opacity-0 transition-all p-4">
-        <div id="camera-modal-content" class="bg-black w-full max-w-sm aspect-[9/16] relative rounded-3xl overflow-hidden scale-90 transition-all shadow-2xl">
-            <video id="camera-video" autoplay playsinline class="w-full h-full object-cover"></video>
-            <div class="absolute bottom-10 inset-x-0 flex justify-center gap-10 items-center px-10">
-                <button onclick="closeCameraModal()" class="w-12 h-12 rounded-full bg-white/10 text-white border border-white/20"><i class="fa-solid fa-xmark"></i></button>
-                <button onclick="takeSnapshot()" class="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center bg-white/20 hover:bg-white transition-all"><div class="w-16 h-16 bg-white rounded-full"></div></button>
+    <div id="elster-modal" class="fixed inset-0 bg-slate-900/90 z-[200] hidden flex items-center justify-center opacity-0 transition-all p-4">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 relative shadow-2xl">
+            <button onclick="closeElsterModal()" class="absolute top-8 left-8 text-slate-300 hover:text-red-500 transition-all"><i class="fa-solid fa-xmark"></i></button>
+            <div id="elster-modal-content" class="text-center">
+                <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-shield-halved text-2xl"></i></div>
+                <h3 class="text-xl font-bold mb-8">ELSTER Authorisierung</h3>
+                <form id="elster-form" class="space-y-4 text-left">
+                    <div class="p-4 border-2 border-dashed rounded-2xl bg-slate-50 flex items-center gap-4 group cursor-pointer" onclick="document.getElementById('cert-input').click()">
+                        <input type="file" id="cert-input" class="hidden" onchange="document.getElementById('cert-name').innerText = this.files[0].name">
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-slate-400 group-hover:text-brand-600 transition-all"><i class="fa-solid fa-file-contract"></i></div>
+                        <div><p id="cert-name" class="text-xs font-bold text-slate-700">Zertifikat (.pfx) wählen</p><p class="text-[9px] text-slate-400 uppercase font-black tracking-widest">REQUIRED FOR ERIC API</p></div>
+                    </div>
+                    <input type="password" required placeholder="CERT-PIN" class="w-full p-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-mono tracking-[0.5em] outline-none bg-slate-50 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all">
+                    <button type="submit" class="w-full py-5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs">Sign & Transmit</button>
+                </form>
+            </div>
+            <div id="elster-loading" class="hidden absolute inset-0 bg-white rounded-[2.5rem] flex flex-col items-center justify-center p-10 fade-in text-center">
+                <div class="w-20 h-20 border-4 border-slate-100 border-t-brand-600 rounded-full animate-spin mb-6"></div>
+                <p class="font-bold text-slate-800 text-lg">Digital Signing...</p>
+                <p class="text-sm text-slate-400 mt-2">Connecting to Tax Office Server</p>
             </div>
         </div>
     </div>
 
-    <div id="elster-auth-modal" class="fixed inset-0 bg-slate-900/80 z-[120] hidden flex items-center justify-center opacity-0 transition-all p-4">
-        <div id="elster-modal-content" class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
-            <div class="p-6 bg-brand-900 text-white"><h3 class="font-bold">ELSTER Security Gate</h3><p class="text-xs text-brand-300">Digital Signature required</p></div>
-            <form id="elster-auth-form" class="p-8 space-y-6">
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Zertifikat (.pfx)</label><input type="file" required class="text-xs block w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Zertifikats-PIN</label><input type="password" required placeholder="••••••" class="w-full p-4 border rounded-xl text-center font-mono text-xl tracking-widest outline-none focus:ring-2 focus:ring-brand-500"></div>
-                <button type="submit" id="btn-modal-auth" class="w-full py-4 bg-brand-600 text-white font-bold rounded-xl shadow-lg">Sign & Transmit</button>
-                <button type="button" onclick="closeElsterModal()" class="w-full text-slate-400 text-xs font-bold uppercase">Abbrechen</button>
-            </form>
+    <div id="preview-modal" class="fixed inset-0 bg-slate-900/95 z-[300] hidden flex items-center justify-center opacity-0 transition-all p-4" onclick="closePreviewModal()">
+        <div class="max-w-4xl w-full h-[85vh] bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col" onclick="event.stopPropagation()">
+            <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
+                <span id="p-title" class="font-bold text-lg text-slate-800">Preview</span>
+                <button onclick="closePreviewModal()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div id="p-body" class="flex-1 bg-slate-200 flex items-center justify-center overflow-auto p-12"></div>
         </div>
     </div>
 
-    <div id="preview-modal" class="fixed inset-0 bg-black/90 z-[130] hidden flex items-center justify-center opacity-0 transition-all p-4" onclick="closePreviewModal()">
-        <div id="preview-modal-content" class="max-w-4xl w-full h-[85vh] bg-white rounded-3xl overflow-hidden flex flex-col" onclick="event.stopPropagation()">
-            <div class="p-6 border-b flex justify-between items-center"><span id="preview-modal-title" class="font-bold text-slate-800"></span><button onclick="closePreviewModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button></div>
-            <div id="preview-modal-body" class="flex-1 bg-slate-200 flex items-center justify-center overflow-auto p-4"></div>
+    <div id="camera-modal" class="fixed inset-0 bg-black/95 z-[400] hidden flex items-center justify-center opacity-0 transition-all">
+        <div class="bg-black w-full max-w-sm aspect-[9/16] relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+            <video id="camera-video" autoplay playsinline class="w-full h-full object-cover"></video>
+            <div class="absolute bottom-12 inset-x-0 flex justify-center items-center gap-10">
+                <button onclick="closeCameraModal()" class="text-white text-3xl opacity-50 hover:opacity-100 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="takeSnapshot()" class="w-20 h-20 rounded-full border-8 border-white/20 bg-white transform active:scale-90 transition-all shadow-2xl"></button>
+                <div class="w-8"></div>
+            </div>
         </div>
     </div>
 
     <script>
         let currentLang = 'de';
-        let currentFileObj = null; 
-        let archivedFiles = []; 
-        let cameraStream = null;
-
-        // Auto-Calc Tax Logic
-        document.getElementById('input-netto').addEventListener('input', calculateTax);
-        document.getElementById('input-tax-rate').addEventListener('change', calculateTax);
-
-        function calculateTax() {
-            const netto = parseFloat(document.getElementById('input-netto').value) || 0;
-            const rate = parseFloat(document.getElementById('input-tax-rate').value) || 0;
-            const taxVal = (netto * (rate / 100)).toFixed(2);
-            const brutto = (netto + parseFloat(taxVal)).toFixed(2);
-            
-            document.getElementById('input-tax-val').value = taxVal;
-            document.getElementById('display-brutto').innerText = `€ ${brutto.replace('.', ',')}`;
-            if(currentFileObj) {
-                currentFileObj.netto = netto;
-                currentFileObj.taxVal = taxVal;
-                currentFileObj.brutto = brutto;
-                currentFileObj.taxRate = rate;
-            }
-        }
+        let currentFile = null;
+        let db = [];
+        let stream = null;
 
         const i18n = {
-            de: {
-                login_subtitle: "Professionelles Belegmanagement", btn_login: "Zugang anfordern",
-                nav_invoices: "Beleg erfassen", nav_archive: "Archiv & Status", user_loc: "Ludwigshafen, DE",
-                header_workflow: "Dokumenten-Workflow", step1_title: "Beleg erfassen", step1_desc: "Laden Sie eine Rechnung hoch (PDF/Scan)",
-                up_local: "Lokal Upload", up_cam: "Scan mit Kamera", btn_remove_file: "Löschen", btn_process: "KI-Daten extrahieren",
-                step1_processing: "KI identifiziert Konten...", step2_title: "Belegverificierung", step2_folder_label: "Ordner / Kategory",
-                btn_back: "Zurück", btn_confirm: "Bestätigen & Archivieren", step3_title: "Beleg Archiviert!", btn_sync: "Übermittlung an ELSTER API",
-                btn_synced: "Status: Übermittelt (ELSTER Log #4412)", btn_go_archive: "Arsip & Berichte", btn_restart: "Neue Erfassung",
-                archive_title: "Dokumenten-Bericht", auth_title: "ELSTER Security Gate", btn_auth_sync: "Sign & Transmit"
-            },
-            en: {
-                login_subtitle: "Professional Document Management", btn_login: "Request Access",
-                nav_invoices: "Capture Document", nav_archive: "Archive & Progress", user_loc: "Ludwigshafen, DE",
-                header_workflow: "Document Workflow", step1_title: "Capture Document", step1_desc: "Upload an invoice (PDF/Scan)",
-                up_local: "Local Upload", up_cam: "Camera Scan", btn_remove_file: "Remove", btn_process: "Extract AI Data",
-                step1_processing: "AI Identifying accounts...", step2_title: "Verify Data", step2_folder_label: "Folder / Category",
-                btn_back: "Back", btn_confirm: "Confirm & Archive", step3_title: "Document Archived!", btn_sync: "Submit to ELSTER API",
-                btn_synced: "Status: Submitted (ELSTER Log #4412)", btn_go_archive: "Archive & Reports", btn_restart: "New Capture",
-                archive_title: "Document Report", auth_title: "ELSTER Security Gate", btn_auth_sync: "Sign & Transmit"
-            }
+            de: { login_subtitle: "Enterprise GoBD Portal", btn_login: "Login Access", nav_invoices: "Beleg-Upload", nav_archive: "GoBD Archiv", header_workflow: "Workflow", step1_title: "Beleg erfassen", up_local: "Lokal", up_cam: "Kamera", btn_confirm: "In Archiv Speichern", step3_title: "Erfolg!", btn_restart: "New Upload", archive_title: "GoBD Archiv" },
+            en: { login_subtitle: "Professional Dashboard", btn_login: "Sign In", nav_invoices: "Invoice Upload", nav_archive: "Digital Archive", header_workflow: "Workflow", step1_title: "Capture Invoice", up_local: "Local", up_cam: "Camera", btn_confirm: "Save to Archive", step3_title: "Success!", btn_restart: "New Upload", archive_title: "GoBD Archive" }
         };
 
+        // --- AUTH ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin mr-2"></i> Entering...';
+            setTimeout(() => {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('app-view').classList.remove('hidden');
+                document.getElementById('app-view').classList.add('flex');
+                document.getElementById('top-nav').classList.remove('hidden');
+                setTimeout(() => document.getElementById('app-view').classList.remove('opacity-0'), 50);
+            }, 1000);
+        });
+
+        // --- CORE ---
         function switchLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(i18n[lang][key]) el.innerText = i18n[lang][key];
             });
-            document.getElementById('btn-lang-de').className = lang === 'de' ? "px-3 py-1 text-xs font-bold rounded-md bg-brand-600 text-white" : "px-3 py-1 text-xs font-bold rounded-md text-slate-500";
-            document.getElementById('btn-lang-en').className = lang === 'en' ? "px-3 py-1 text-xs font-bold rounded-md bg-brand-600 text-white" : "px-3 py-1 text-xs font-bold rounded-md text-slate-500";
+            document.getElementById('btn-lang-de').className = lang === 'de' ? "px-3 py-1 text-xs font-bold rounded-lg bg-brand-600 text-white transition-all" : "px-3 py-1 text-xs font-bold rounded-lg text-slate-500 transition-all";
+            document.getElementById('btn-lang-en').className = lang === 'en' ? "px-3 py-1 text-xs font-bold rounded-lg bg-brand-600 text-white transition-all" : "px-3 py-1 text-xs font-bold rounded-lg text-slate-500 transition-all";
         }
 
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-login');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            setTimeout(() => {
-                document.getElementById('login-view').classList.add('hidden');
-                document.getElementById('app-view').classList.remove('hidden');
-                document.getElementById('app-view').classList.add('flex');
-                setTimeout(() => document.getElementById('app-view').classList.remove('opacity-0'), 50);
-            }, 1000);
-        });
+        function handleFileSelection(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            currentFile = { id: Date.now(), name: file.name.toUpperCase(), url: URL.createObjectURL(file), type: file.type };
+            document.getElementById('ready-filename').innerText = "DATA SELECTED: " + currentFile.name;
+            document.getElementById('file-ready-area').classList.remove('hidden');
+        }
+
+        function triggerDrive() { alert("Simulating Google Drive Authentication..."); handleFileSelection({target: {files: [new File([""], "Tax_Doc_2026.pdf", {type: "application/pdf"})]}}); }
 
         async function openCameraModal() {
             const modal = document.getElementById('camera-modal');
-            const video = document.getElementById('camera-video');
             modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('opacity-100'); document.getElementById('camera-modal-content').classList.remove('scale-90'); }, 10);
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', aspectRatio: 0.5625 } });
-                video.srcObject = cameraStream;
-            } catch (err) { alert("Camera Error: " + err); closeCameraModal(); }
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+            try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', aspectRatio: 0.5625 } }); document.getElementById('camera-video').srcObject = stream; } catch (err) { alert(err); }
         }
 
-        function closeCameraModal() {
-            if(cameraStream) cameraStream.getTracks().forEach(t => t.stop());
-            document.getElementById('camera-modal').classList.remove('opacity-100');
-            setTimeout(() => document.getElementById('camera-modal').classList.add('hidden'), 300);
-        }
+        function closeCameraModal() { if(stream) stream.getTracks().forEach(t => t.stop()); document.getElementById('camera-modal').classList.add('hidden'); }
 
         function takeSnapshot() {
             const video = document.getElementById('camera-video');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
-            currentFileObj = { 
-                id: Date.now(), 
-                name: 'SCAN_'+Date.now()+'.jpg', 
-                type: 'image/jpeg', 
-                dataUrl: canvas.toDataURL('image/jpeg'), 
-                date: new Date().toISOString().split('T')[0], 
-                status: 'pending',
-                invNum: 'RE-SCAN-' + Math.floor(Math.random() * 9000),
-                netto: 0, taxVal: 0, brutto: 0, taxRate: 19
-            };
-            closeCameraModal(); showFilePreview();
+            currentFile = { id: Date.now(), name: 'SCAN_'+Date.now()+'.JPG', url: canvas.toDataURL('image/jpeg'), type: 'image/jpeg' };
+            closeCameraModal(); document.getElementById('ready-filename').innerText = currentFile.name; document.getElementById('file-ready-area').classList.remove('hidden');
         }
 
-        function handleFileSelection(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                currentFileObj = { 
-                    id: Date.now(), 
-                    name: file.name, 
-                    type: file.type, 
-                    dataUrl: ev.target.result, 
-                    date: new Date().toISOString().split('T')[0], 
-                    status: 'pending',
-                    invNum: 'RE-' + Math.floor(Math.random() * 9000),
-                    netto: 0, taxVal: 0, brutto: 0, taxRate: 19
-                };
-                showFilePreview();
-            };
-            reader.readAsDataURL(file);
+        function simulateAI() {
+            goToPhase('verify');
+            document.getElementById('v-vendor').value = "Deutsche Telekom AG";
+            document.getElementById('v-inv').value = "RE-99088-26";
+            document.getElementById('v-date').value = "2026-04-13";
+            document.getElementById('v-netto').value = "100.00";
+            document.getElementById('v-preview').innerHTML = currentFile.type.includes('image') ? `<img src="${currentFile.url}" class="max-w-full">` : `<i class="fa-solid fa-file-pdf text-8xl text-red-500"></i>`;
+            recalc();
         }
 
-        function showFilePreview() {
-            document.getElementById('drop-content').classList.add('hidden');
-            document.getElementById('file-preview-area').classList.remove('hidden');
-            document.getElementById('preview-filename').innerText = currentFileObj.name;
-            const visual = document.getElementById('preview-visual');
-            if(currentFileObj.type.includes('image')) visual.innerHTML = `<img src="${currentFileObj.dataUrl}" class="w-full h-full object-cover">`;
-            else visual.innerHTML = `<i class="fa-solid fa-file-pdf text-2xl text-red-500 mt-4 mx-auto block text-center"></i>`;
+        function recalc() {
+            const net = parseFloat(document.getElementById('v-netto').value) || 0;
+            const rate = parseFloat(document.getElementById('v-tax-rate').value);
+            const brutto = net * (1 + rate/100);
+            document.getElementById('v-brutto').innerText = `€ ${brutto.toFixed(2).replace('.', ',')}`;
         }
 
-        function clearFile() { currentFileObj = null; document.getElementById('drop-content').classList.remove('hidden'); document.getElementById('file-preview-area').classList.add('hidden'); }
-
-        function processFile() {
-            document.getElementById('processing-overlay').classList.remove('hidden');
-            document.getElementById('processing-overlay').classList.add('flex');
-            setTimeout(() => {
-                document.getElementById('processing-overlay').classList.add('hidden');
-                document.getElementById('input-vendor').value = "Deutsche Telekom AG";
-                document.getElementById('input-date').value = currentFileObj.date;
-                document.getElementById('input-inv-num').value = currentFileObj.invNum;
-                document.getElementById('input-netto').value = "84.00";
-                document.getElementById('input-tax-rate').value = "19";
-                document.getElementById('custom-folder-name').value = "Monatsabschluss_2026";
-                calculateTax();
-                goToStep(2);
-            }, 2000);
+        function finalizeArchive() {
+            const entry = { id: currentFile.id, vendor: document.getElementById('v-vendor').value, inv: document.getElementById('v-inv').value, date: document.getElementById('v-date').value, brutto: document.getElementById('v-brutto').innerText, netto: parseFloat(document.getElementById('v-netto').value), taxRate: document.getElementById('v-tax-rate').value, status: currentFile.status || 'pending', url: currentFile.url, type: currentFile.type };
+            const idx = db.findIndex(x => x.id === entry.id);
+            if(idx !== -1) db[idx] = entry; else db.push(entry);
+            goToPhase('finish');
         }
 
-        function goToStep(s) {
-            [1,2,3].forEach(i => document.getElementById('step-'+i).classList.add('hidden'));
-            document.getElementById('step-'+s).classList.remove('hidden');
-            if(s === 3) {
-                currentFileObj.folder = document.getElementById('custom-folder-name').value;
-                currentFileObj.vendor = document.getElementById('input-vendor').value;
-                currentFileObj.invNum = document.getElementById('input-inv-num').value;
-                archivedFiles.push({...currentFileObj});
-            }
+        function editFile(id) {
+            const f = db.find(x => x.id === id);
+            currentFile = f;
+            switchMainView('workflow'); goToPhase('verify');
+            document.getElementById('v-vendor').value = f.vendor;
+            document.getElementById('v-inv').value = f.inv;
+            document.getElementById('v-date').value = f.date;
+            document.getElementById('v-netto').value = f.netto;
+            document.getElementById('v-tax-rate').value = f.taxRate;
+            document.getElementById('v-preview').innerHTML = f.type.includes('image') ? `<img src="${f.url}" class="max-w-full">` : `<i class="fa-solid fa-file-pdf text-8xl text-red-500"></i>`;
+            recalc();
         }
 
-        function openElsterModal() {
-            document.getElementById('elster-auth-modal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('elster-auth-modal').classList.add('opacity-100'), 10);
-        }
+        function goToPhase(p) { ['upload', 'verify', 'finish'].forEach(x => document.getElementById('phase-'+x).classList.add('hidden')); document.getElementById('phase-'+p).classList.remove('hidden'); }
 
-        function closeElsterModal() { document.getElementById('elster-auth-modal').classList.add('hidden'); }
-
-        document.getElementById('elster-auth-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('btn-modal-auth').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Digital Signing...';
-            setTimeout(() => {
-                const targetFile = archivedFiles.find(f => f.id === currentFileObj.id);
-                if(targetFile) targetFile.status = 'submitted';
-                closeElsterModal();
-                document.getElementById('sync-container').classList.add('hidden');
-                document.getElementById('post-sync-actions').classList.remove('hidden');
-                document.getElementById('elster-icon').className = "fa-solid fa-link w-6 text-emerald-400 mr-2";
-                document.getElementById('elster-text').innerText = i18n[currentLang].status_elster_connected;
-            }, 2000);
+        function openElsterModal() { document.getElementById('elster-modal').classList.remove('hidden'); setTimeout(() => document.getElementById('elster-modal').classList.add('opacity-100'), 10); document.getElementById('elster-loading').classList.add('hidden'); }
+        function closeElsterModal() { document.getElementById('elster-modal').classList.add('hidden'); }
+        
+        document.getElementById('elster-form').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            document.getElementById('elster-loading').classList.remove('hidden');
+            setTimeout(() => { db[db.length-1].status = 'submitted'; closeElsterModal(); document.getElementById('elster-actions').classList.add('hidden'); document.getElementById('elster-done').classList.remove('hidden'); }, 2000);
         });
 
-        function resetFlow() { 
-            clearFile(); 
-            document.getElementById('sync-container').classList.remove('hidden'); 
-            document.getElementById('post-sync-actions').classList.add('hidden'); 
-            goToStep(1); 
-        }
-
         function switchMainView(v) {
-            document.getElementById('view-workflow').classList.add('hidden');
-            document.getElementById('view-archive').classList.add('hidden');
+            document.getElementById('view-workflow').classList.add('hidden'); document.getElementById('view-archive').classList.add('hidden');
             document.getElementById('view-'+v).classList.remove('hidden');
-            
-            // UI Tab active state
-            document.getElementById('nav-workflow').className = v === 'workflow' ? "w-full flex items-center px-4 py-3 rounded-xl transition-all tab-active" : "w-full flex items-center px-4 py-3 rounded-xl transition-all hover:bg-white/5";
-            document.getElementById('nav-archive').className = v === 'archive' ? "w-full flex items-center px-4 py-3 rounded-xl transition-all tab-active" : "w-full flex items-center px-4 py-3 rounded-xl transition-all hover:bg-white/5";
-            
-            if(v === 'archive') renderArchive();
+            document.getElementById('nav-workflow').className = v==='workflow' ? "w-full flex items-center px-4 py-3 rounded-xl transition-all tab-active shadow-lg" : "w-full flex items-center px-4 py-3 rounded-xl transition-all hover:bg-white/5";
+            document.getElementById('nav-archive').className = v==='archive' ? "w-full flex items-center px-4 py-3 rounded-xl transition-all tab-active shadow-lg" : "w-full flex items-center px-4 py-3 rounded-xl transition-all hover:bg-white/5";
+            if(v==='archive') renderArchive();
         }
 
         function renderArchive() {
             const body = document.getElementById('archive-table-body');
-            const empty = document.getElementById('archive-empty-state');
-            
-            if(archivedFiles.length === 0) {
-                body.innerHTML = '';
-                empty.classList.remove('hidden');
-                updateCounters();
-                return;
-            }
-            
-            empty.classList.add('hidden');
-            body.innerHTML = archivedFiles.slice().reverse().map(f => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="p-4 text-xs font-mono text-slate-500">${f.date}</td>
-                    <td class="p-4">
-                        <p class="text-xs font-bold text-slate-800">${f.vendor}</p>
-                        <p class="text-[9px] text-slate-400 font-mono">${f.invNum}</p>
+            body.innerHTML = db.slice().reverse().map(f => `
+                <tr class="hover:bg-slate-50 transition-all border-b group">
+                    <td class="p-6 font-mono text-[11px] text-slate-400">${f.date}</td>
+                    <td class="p-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 transition-all"><i class="fa-solid fa-receipt text-[10px]"></i></div>
+                            <div><p class="text-xs font-bold text-slate-800">${f.vendor}</p><p class="text-[9px] text-slate-400 font-mono tracking-tight">${f.inv}</p></div>
+                        </div>
                     </td>
-                    <td class="p-4 text-xs font-mono">€ ${f.netto.toFixed(2)}</td>
-                    <td class="p-4 text-xs text-slate-400 font-mono">${f.taxRate}%</td>
-                    <td class="p-4 text-xs font-bold font-mono text-brand-600">€ ${f.brutto}</td>
-                    <td class="p-4 text-center">
-                        <span class="status-badge ${f.status === 'submitted' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${f.status}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right">
-                        <button onclick="openPreview(${f.id})" class="text-slate-400 hover:text-brand-600"><i class="fa-solid fa-eye"></i></button>
+                    <td class="p-6 text-center"><span class="status-badge ${f.status==='submitted'?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">${f.status}</span></td>
+                    <td class="p-6 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="openPreview(${f.id})" class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-brand-50 hover:text-brand-600 transition-all"><i class="fa-solid fa-eye text-xs"></i></button>
+                            <button onclick="editFile(${f.id})" class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteFile(${f.id})" class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
-            updateCounters();
-        }
-
-        function updateCounters() {
-            document.getElementById('count-total').innerText = archivedFiles.length;
-            document.getElementById('count-pending').innerText = archivedFiles.filter(f => f.status === 'pending').length;
-            document.getElementById('count-submitted').innerText = archivedFiles.filter(f => f.status === 'submitted').length;
+            document.getElementById('count-p').innerText = db.filter(x => x.status === 'pending').length;
+            document.getElementById('count-s').innerText = db.filter(x => x.status === 'submitted').length;
         }
 
         function openPreview(id) {
-            const f = archivedFiles.find(x => x.id === id);
-            document.getElementById('preview-modal-title').innerText = f.vendor + ' - ' + f.invNum;
-            const body = document.getElementById('preview-modal-body');
-            if(f.type.includes('image')) body.innerHTML = `<img src="${f.dataUrl}" class="max-w-full rounded-xl shadow-2xl">`;
-            else body.innerHTML = `<div class="p-20 text-center"><i class="fa-solid fa-file-pdf text-8xl text-red-500 mb-6"></i><p class="font-bold">PDF Digital Format</p></div>`;
-            document.getElementById('preview-modal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('preview-modal').classList.add('opacity-100'), 10);
+            const f = db.find(x => x.id === id); 
+            document.getElementById('p-title').innerText = f.vendor;
+            document.getElementById('p-body').innerHTML = f.type.includes('image') ? `<img src="${f.url}" class="max-w-full rounded-2xl shadow-xl">` : `<i class="fa-solid fa-file-pdf text-8xl text-red-500"></i>`;
+            document.getElementById('preview-modal').classList.remove('hidden'); setTimeout(() => document.getElementById('preview-modal').classList.add('opacity-100'), 10);
         }
-
         function closePreviewModal() { document.getElementById('preview-modal').classList.add('hidden'); }
+        function deleteFile(id) { if(confirm("Permanently delete this GoBD record?")) { db = db.filter(x => x.id !== id); renderArchive(); } }
+        function resetFlow() { currentFile = null; document.getElementById('file-ready-area').classList.add('hidden'); document.getElementById('elster-actions').classList.remove('hidden'); document.getElementById('elster-done').classList.add('hidden'); goToPhase('upload'); }
         function handleLogout() { location.reload(); }
 
         switchLanguage('de');
