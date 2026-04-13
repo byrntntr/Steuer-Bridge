@@ -550,60 +550,39 @@
         }
 
         // --- LIVE CAMERA LOGIC (WebRTC) ---
-        async function openCameraModal() {
-            const modal = document.getElementById('camera-modal');
-            const content = document.getElementById('camera-modal-content');
-            const video = document.getElementById('camera-video');
+       async function openCamera() {
+    const modal = document.getElementById('camera-modal');
+    const content = document.getElementById('camera-modal-content');
+    const video = document.getElementById('camera-video');
 
-            modal.classList.remove('hidden'); void modal.offsetWidth;
-            modal.classList.remove('opacity-0'); modal.classList.add('opacity-100');
-            content.classList.remove('scale-95'); content.classList.add('scale-100');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
 
-            try {
-                // Request camera access (prefer back camera if on mobile)
-                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                video.srcObject = videoStream;
-            } catch (err) {
-                alert("Camera access denied or not available on this device.\nError: " + err.message);
-                closeCameraModal();
-            }
-        }
+    try {
+        // PERUBAHAN DI SINI: Memaksa rasio portrait (9:16)
+        const constraints = {
+            video: {
+                facingMode: 'environment', // Mengutamakan kamera belakang ponsel
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                aspectRatio: { ideal: 0.5625 } // Rasio 9:16 (Portrait)
+            },
+            audio: false
+        };
 
-        function closeCameraModal() {
-            const modal = document.getElementById('camera-modal');
-            const content = document.getElementById('camera-modal-content');
-            
-            // Stop the camera stream to turn off the light
-            if(videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-
-            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
-            content.classList.remove('scale-100'); content.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-        }
-
-        function takeSnapshot() {
-            const video = document.getElementById('camera-video');
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-
-            currentFileObj = {
-                id: 'file_' + Date.now(),
-                name: 'Snapshot_' + new Date().getTime().toString().slice(-6) + '.jpg', 
-                size: '---', // Estimated
-                type: 'image/jpeg',
-                dataUrl: dataUrl, 
-                date: new Date().toLocaleDateString('de-DE')
-            };
-
-            closeCameraModal();
-            showFilePreview();
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+        cameraStream = stream;
+    } catch (err) {
+        console.error("Error akses kamera: ", err);
+        alert("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
+        closeCameraModal();
+    }
+}            showFilePreview();
         }
 
         // --- File Handling (Local & Drive) ---
